@@ -1,5 +1,4 @@
 # Supermarket-Automation-Software
-# One-Line Project Summary
 
 FastAPI + PostgreSQL backend for supermarket POS billing, atomic stock management, daily price adjustments, and financial reports.
 
@@ -9,7 +8,7 @@ Ensure Python 3.10+ and PostgreSQL 15+ are installed.
 
 ```bash
 # Clone the repository and enter directory
-git clone <REPO_URL>
+git clone https://github.com/AbhisekKanungo/Supermarket-Automation-Software
 cd sas_backend
 
 # Create and activate virtual environment
