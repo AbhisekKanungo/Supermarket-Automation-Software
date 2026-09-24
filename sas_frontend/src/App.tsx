@@ -5,7 +5,7 @@ import Billing from "./pages/Billing";
 import Inventory from "./pages/Inventory";
 import SalesStats from "./pages/SalesStats";
 import { RoleProvider, useRole, type Role } from "./context/RoleContext";
-
+import Approvals from "./pages/Approval";
 function Guard({ allow, children }: { allow: Role[]; children: ReactNode }) {
   const { role } = useRole();
   if (!allow.includes(role)) {
@@ -25,6 +25,7 @@ function Shell() {
           <Route path="/billing" element={<Guard allow={["employee"]}><Billing /></Guard>} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/stats" element={<Guard allow={["manager"]}><SalesStats /></Guard>} />
+          <Route path="/approvals" element={<Guard allow={["manager"]}><Approvals /></Guard>} />
         </Routes>
       </main>
     </>

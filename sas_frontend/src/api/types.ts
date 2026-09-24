@@ -1,3 +1,5 @@
+export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
+
 export interface ScannedItem {
   item_id: number;
   barcode: string;
@@ -5,6 +7,7 @@ export interface ScannedItem {
   is_weighted: boolean;
   current_price: number;
   stock_available: number;
+  approval_status: ApprovalStatus;
 }
 
 export interface CartItemInput {
@@ -30,6 +33,7 @@ export interface Bill {
   serial_number: number;
   created_at: string;
   clerk_id: string;
+  status: "COMPLETED" | "CANCELLED";
   line_items: BillLineItem[];
   total_amount_payable: string;
 }
@@ -40,8 +44,9 @@ export interface InventoryItem {
   name: string;
   is_weighted: boolean;
   stock_quantity: number;
-  current_price: number;
   cost_price: number;
+  current_price: number | null; // null while pending approval
+  approval_status: ApprovalStatus;
 }
 
 export interface SalesStat {
@@ -52,4 +57,29 @@ export interface SalesStat {
   price_realized: string;
   total_cost: string;
   profit: string;
+}
+
+export interface PendingItem {
+  item_id: number;
+  barcode: string;
+  name: string;
+  is_weighted: boolean;
+  cost_price: number;
+  stock_quantity: number;
+  approval_status: ApprovalStatus;
+}
+
+export interface CreateItemRequest {
+  barcode: string;
+  name: string;
+  is_weighted: boolean;
+  cost_price: number;
+  stock_quantity: number;
+}
+
+export interface CreateItemResponse {
+  message: string;
+  barcode: string;
+  stock_quantity: number;
+  approval_status: ApprovalStatus;
 }
