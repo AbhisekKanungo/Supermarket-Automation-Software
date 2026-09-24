@@ -1,47 +1,166 @@
 # Supermarket-Automation-Software
 
-FastAPI + PostgreSQL backend for supermarket POS billing, atomic stock management, daily price adjustments, and financial reports.
+Supermarket automation software (SAS): billing at the counter, inventory management, price control, and sales statistics.
 
-## Prerequisites & Setup
+- **Backend:** FastAPI + PostgreSQL. Handles POS billing, atomic stock updates, daily price changes, and profit reports.
+- **Frontend:** React + TypeScript (Vite) with Tailwind CSS. Role-based screens for employees and managers.
 
-Ensure Python 3.10+ and PostgreSQL 15+ are installed.
+## Features
+
+| Requirement | Where |
+| --- | --- |
+| Print a bill with serial number, item name, code, quantity, unit price, item price, and total | Billing page (employee) |
+| Inventory decreases automatically on every sale | Backend checkout |
+| Manager can view inventory details | Inventory & Prices page (manager) |
+| Employee can update inventory when new supply arrives | Restock page (employee) |
+| Manager can change an item's selling price | Inventory & Prices page (manager) |
+| Sales statistics (quantity sold, price realized, profit) for any day or period | Sales Stats page (manager) |
+
+### Roles
+
+Use the **Role** dropdown in the top bar to switch.
+
+| Role | Can do |
+| --- | --- |
+| Employee | Bill customers, restock inventory |
+| Manager | View inventory and cost prices, change selling prices, view sales statistics |
+
+> **Note:** roles are enforced in the UI only. The API itself has no authentication, so treat this as a demo of the access rules, not a security boundary.
+
+## Prerequisites
+
+- Python 3.10+
+- PostgreSQL 15+
+- Node.js 18+ and npm
+
+## Backend Setup
 
 ```bash
-# Clone the repository and enter directory
+# Clone the repository and enter the directory
 git clone https://github.com/AbhisekKanungo/Supermarket-Automation-Software
-cd sas_backend
+cd Supermarket-Automation-Software
 
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate       # On Windows: venv\\Scripts\\activate
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate       # On Windows: venv\Scripts\activate
 
-# Install required dependencies
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Database Initialization
+### Configure the database connection
 
-Ensure PostgreSQL is running locally, then create the database and run the seed script:
+Copy the example environment file and put in your own PostgreSQL password:
+
+```bash
+cp .env.example .env           # On Windows: copy .env.example .env
+```
+
+```
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/sas_db
+```
+
+`.env` is git-ignored, so your password is never committed. If your password contains special characters (`@`, `#`, `/`, `:`), URL-encode them (`@` becomes `%40`).
+
+### Initialize the database
+
+Make sure PostgreSQL is running, then create the database and seed it:
 
 ```bash
 createdb sas_db
 python seed.py
 ```
 
-## How to Run & Verify
+If `createdb` is not found (common on Windows), open **SQL Shell (psql)**, log in, and run:
 
-Start the development server:
+```sql
+CREATE DATABASE sas_db;
+```
+
+### Run the backend
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8000
 ```
 
 - Base URL: [http://localhost:8000](http://localhost:8000)
-- Interactive API Documentation (Swagger UI): [http://localhost:8000/docs](http://localhost:8000/docs)
+- Interactive API docs (Swagger UI): [http://localhost:8000/docs](http://localhost:8000/docs)
 
-## API & Test Cheatsheet
+## Frontend Setup
 
-### Endpoints
+In a second terminal, from the repository root:
+
+```bash
+cd sas_frontend
+npm install
+```
+
+Create `sas_frontend/.env` so the frontend knows where the API is:
+
+```
+VITE_API_URL=http://localhost:8000
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173). The backend must be running for the pages to load data.
+
+### Build for production
+
+```bash
+npm run build
+npm run preview
+```
+
+### Frontend tech
+
+| Area | Choice |
+| --- | --- |
+| Framework | React + TypeScript, built with Vite |
+| Routing | React Router |
+| HTTP | Axios |
+| Styling | Tailwind CSS v4, Geist font |
+| Icons | Phosphor Icons |
+
+### Frontend structure
+
+```
+sas_frontend/src/
+  api/          # Axios client, endpoint functions, response types
+  components/   # Navbar, BillView, shared UI (buttons, cards, alerts)
+  context/      # RoleContext (employee / manager)
+  pages/        # Billing, Inventory, SalesStats
+  App.tsx       # Routes and role-based route guards
+```
+
+## Using the app
+
+### Billing (employee)
+
+- Browse all items as cards, or search by name or code.
+- Click **Add** on a card, or scan/type an exact barcode in the search box and press Enter.
+- Adjust quantities in the current bill with the **+** and **-** buttons, or type a number directly.
+- Items sold by weight (per kg) are entered in **grams**, in steps of 10 g.
+- The stock shown on each card reflects what is left after the current bill.
+- Enter a clerk ID and click **Check out** to generate the bill, then **Print bill**.
+
+### Restock (employee)
+
+Enter the quantity received for an item and click **Add stock**. Stock updates immediately.
+
+### Inventory & prices (manager)
+
+View stock, selling price, and cost price for every item. Enter a new price and click **Set price** to change today's selling price. The new price applies to future sales only; past sales keep the price they were made at.
+
+### Sales stats (manager)
+
+Pick a date range (or use Today, Last 7 days, Last 30 days) to see quantity sold, price realized, and profit per item, with totals. Click a column header to sort. Use **Print report** to print it.
+
+## API Cheatsheet
 
 | **Method** | **Endpoint** | **Description** |
 | --- | --- | --- |
@@ -52,10 +171,20 @@ uvicorn app.main:app --reload
 | GET | `/api/v1/inventory` | Inspect current stock levels |
 | GET | `/api/v1/reports/sales-stats` | Generate revenue & profit report |
 
-### Testing
+## Testing
 
-Run automated unit tests and check test coverage:
+Run backend unit tests and check coverage:
 
 ```bash
 pytest -v --cov=app --cov-report=term-missing tests/
 ```
+
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| `fe_sendauth: no password supplied` | Add your password to `DATABASE_URL` in `.env`. |
+| `password authentication failed` | The password in `.env` doesn't match your PostgreSQL install. |
+| `ModuleNotFoundError` when running `seed.py` | Activate the virtual environment and run `pip install -r requirements.txt`. |
+| Frontend shows a network error | Check the backend is running and `VITE_API_URL` points to it. |
+| Checkout fails with `A transaction is already begun` | Known SQLAlchemy 2.0 issue with `db.begin()` in `checkout`; see the backend maintainers. |
