@@ -76,4 +76,19 @@ export function EmptyState({ title, hint }: { title: string; hint: string }) {
   );
 }
 
-export const money = (n: number | string) => Number(n).toFixed(2);
+export const money = (n: number | string | null | undefined) =>
+  n === null || n === undefined ? "Not set" : Number(n).toFixed(2);
+
+export function StatusBadge({ status }: { status: "PENDING" | "APPROVED" | "REJECTED" }) {
+  const styles = {
+    PENDING: "bg-amber-50 text-amber-900 border-amber-200",
+    APPROVED: "bg-accent-soft text-emerald-900 border-emerald-200",
+    REJECTED: "bg-red-50 text-red-800 border-red-200",
+  }[status];
+  const label = { PENDING: "Pending", APPROVED: "Approved", REJECTED: "Rejected" }[status];
+  return (
+    <span className={`inline-flex items-center rounded-ui border px-2 py-0.5 text-xs font-medium ${styles}`}>
+      {label}
+    </span>
+  );
+}

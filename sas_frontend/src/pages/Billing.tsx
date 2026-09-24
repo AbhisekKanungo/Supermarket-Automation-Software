@@ -82,7 +82,8 @@ export default function Billing() {
 
   const load = useCallback(async () => {
     try {
-      setItems(await getInventory());
+      const all = await getInventory();
+      setItems(all.filter((i) => i.approval_status === "APPROVED" && i.current_price !== null));
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -109,7 +110,7 @@ export default function Billing() {
     return item ? [{ item, quantity: l.quantity }] : [];
   });
 
-  const total = lines.reduce((sum, l) => sum + l.quantity * l.item.current_price, 0);
+  const total = lines.reduce((sum, l) => sum + l.quantity * l.item.current_price!, 0);
 
   const inCartQty = (barcode: string) => cart.find((l) => l.barcode === barcode)?.quantity ?? 0;
 
@@ -202,7 +203,18 @@ export default function Billing() {
     }
   }
 
-  if (bill) return <BillView bill={bill} onNewSale={() => setBill(null)} />;
+  if (bill) {
+  return (
+    <BillView
+      bill={bill}
+      onNewSale={() => {
+        setBill(null);
+        load();
+      }}
+      onCancelled={(b) => setBill(b)}
+    />
+  );
+}
 
   return (
     <div>
@@ -360,7 +372,7 @@ export default function Billing() {
                         )}
                       </div>
                       <span className="font-medium tabular-nums">
-                        {money(quantity * item.current_price)}
+                        {money(quantity * item.current_price!)}
                       </span>
                     </div>
                   </li>
