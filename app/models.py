@@ -10,8 +10,11 @@ class ItemInventory(Base):
     name = Column(String(150), nullable=False)
     is_weighted = Column(Boolean, default=False)
     cost_price = Column(Numeric(10, 2), nullable=False)
-    current_price = Column(Numeric(10, 2), nullable=False)
+    # Nullable because employee submits without a final retail price; manager sets it on approval
+    current_price = Column(Numeric(10, 2), nullable=True)
     stock_quantity = Column(Numeric(10, 3), nullable=False, default=0.000)
+    # Workflow status: 'PENDING', 'APPROVED', 'REJECTED'
+    approval_status = Column(String(20), nullable=False, default="PENDING")
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     line_items = relationship("SalesLineItem", back_populates="item")
@@ -22,6 +25,7 @@ class SalesBill(Base):
     bill_id = Column(Integer, primary_key=True, index=True)
     clerk_id = Column(String(50), nullable=False)
     total_amount = Column(Numeric(10, 2), nullable=False, default=0.00)
+    status = Column(String(20), nullable=False, default="COMPLETED")  # 'COMPLETED', 'CANCELLED'
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     line_items = relationship("SalesLineItem", back_populates="bill")
