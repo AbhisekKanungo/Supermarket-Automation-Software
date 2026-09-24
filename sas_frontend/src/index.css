@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+
+@theme {
+  --font-sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --color-accent: #059669;
+  --color-accent-hover: #047857;
+  --color-accent-soft: #ecfdf5;
+  --radius-ui: 8px;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #fafafa;
+  color: #18181b;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Inputs must be 16px on mobile so iOS Safari doesn't zoom on focus */
+input, select {
+  font-size: 16px;
+}
+@media (min-width: 768px) {
+  input, select { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+@media print {
+   body * { visibility: hidden; }
+  #printable-bill, #printable-bill *,
+  #printable-report, #printable-report * { visibility: visible; }
+  #printable-bill, #printable-report {
+    position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none;
+  }
+}
