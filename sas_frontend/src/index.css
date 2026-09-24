@@ -29,7 +29,11 @@
     font-size: 16px;
   }
 }
-
+@media print {
+  body * { visibility: hidden; }
+  #printable-bill, #printable-bill * { visibility: visible; }
+  #printable-bill { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
